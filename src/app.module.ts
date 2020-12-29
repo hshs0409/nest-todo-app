@@ -14,6 +14,7 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
       context: ({ req }) => ({ user: req['user'] }),
     }),
     JwtModule.forRoot({ privateKey: process.env.PRIVATE_KEY }),
+    AuthModule,
     TodosModule,
     UsersModule,
   ],

@@ -1,9 +1,10 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
 
-@InputType({ isAbstract: true }) // graphql Decorater
+@InputType('TodoInputType', { isAbstract: true }) // graphql Decorater
 @ObjectType() // TypeOrm Decorater
 @Entity()
 export class Todo extends CoreEntity {
@@ -23,8 +24,10 @@ export class Todo extends CoreEntity {
   @IsString()
   description: string;
 
-  @Field((type) => String)
-  @Column()
-  @IsString()
-  ownersName: string;
+  @Field((type) => User)
+  @ManyToOne((type) => User, (user) => user.todos, { onDelete: 'CASCADE' })
+  owner: User;
+
+  @RelationId((todo: Todo) => todo.owner)
+  ownerId: number;
 }

@@ -5,23 +5,24 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
 import { IsEmail, IsEnum, IsString } from 'class-validator';
+import { Todo } from 'src/todos/entities/todo.entity';
 
-enum UserRole {
-  Client,
-  Admin,
+export enum UserRole {
+  Client = 'Client',
+  Admin = 'Admin',
 }
 
 registerEnumType(UserRole, { name: 'UserRole' });
 
-@InputType({ isAbstract: true })
+@InputType('UserInputType', { isAbstract: true })
 @ObjectType()
 @Entity()
 export class User extends CoreEntity {
-  @Column()
+  @Column({ unique: true })
   @Field((type) => String)
   @IsEmail()
   email: string;
@@ -35,6 +36,10 @@ export class User extends CoreEntity {
   @Field((type) => UserRole)
   @IsEnum(UserRole)
   role: UserRole;
+
+  @Field((type) => [Todo])
+  @OneToMany((type) => Todo, (todo) => todo.owner)
+  todos: Todo[];
 
   @BeforeInsert()
   @BeforeUpdate()
